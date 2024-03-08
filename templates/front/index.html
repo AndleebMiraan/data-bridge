@@ -1,0 +1,959 @@
+{% extends 'front/base.html' %}
+{% load custom_filters %}
+
+{% block css %}
+<style>
+    html,
+    body {
+        overflow-x: hidden;
+        /* Prevent scroll on narrow devices */
+        /* overflow: hidden; */
+    }
+
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+    }
+
+    @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+            font-size: 3.5rem;
+        }
+    }
+
+    .b-example-divider {
+        width: 100%;
+        height: 3rem;
+        background-color: rgba(0, 0, 0, .1);
+        border: solid rgba(0, 0, 0, .15);
+        border-width: 1px 0;
+        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+    }
+
+    .b-example-vr {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+    }
+
+    .bi {
+        vertical-align: -.125em;
+        fill: currentColor;
+    }
+
+    .nav-scroller {
+        position: relative;
+        z-index: 2;
+        height: 2.75rem;
+        overflow-y: hidden;
+    }
+
+    .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .btn-bd-primary {
+        --bd-violet-bg: #712cf9;
+        --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
+
+        --bs-btn-font-weight: 600;
+        --bs-btn-color: var(--bs-white);
+        --bs-btn-bg: var(--bd-violet-bg);
+        --bs-btn-border-color: var(--bd-violet-bg);
+        --bs-btn-hover-color: var(--bs-white);
+        --bs-btn-hover-bg: #6528e0;
+        --bs-btn-hover-border-color: #6528e0;
+        --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
+        --bs-btn-active-color: var(--bs-btn-hover-color);
+        --bs-btn-active-bg: #5a23c8;
+        --bs-btn-active-border-color: #5a23c8;
+    }
+
+    .bd-mode-toggle {
+        z-index: 1500;
+    }
+
+    .bd-mode-toggle .dropdown-menu .active .bi {
+        display: block !important;
+    }
+    
+    
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+    <div class="container col-lg-12 col-md-12 col-sm-12 col-xxl-8 px-2 py-2">
+        <div class="row align-items-center g-lg-3 py-2">
+            <div class="col-lg-5 text-center text-lg-start">
+                <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">DATA VISUALIZATION AIMIL POC</h1>
+                <p class="col-lg-10 fs-6">Visualize the data, Validate Precision, Deliver Transformation</p>
+
+                <!-- <a href="{% url 'importExcel' %}" class="btn btn-primary">Import Data &raquo;</a> -->
+                <!-- <a href="{% url 'compare' %}" class="btn btn-sm btn-primary">Compare</a> -->
+            </div>
+
+            <div class="col-md-10 mx-auto col-lg-7">
+
+                {% if messages %}
+                {% for message in messages %}
+                {% if forloop.counter == 1 %}
+                {% if message.tags == 'error' %}
+                <div class="bg-danger text-white text-center">
+                    <div class="{{ message.tags }}" style="height: 30px;">{{ message }}</div>
+                </div>
+                {% elif message.tags == 'success' %}
+                <div class="bg-success text-white text-center">
+                    <div class="{{ message.tags }}" style="height: 30px;">{{ message }}</div>
+                </div>
+                {% else %}
+                <div class="text-center">
+                    <div class="{{ message.tags }}" style="height: 30px;">{{ message }}</div>
+                </div>
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+
+                <div class="row mx-auto px-2 py-2 mb-2 border rounded-3 bg-secondary text-white shadow-sm">
+                    <div class="col-lg-4 form-group">
+                        <div class="form-check">
+                            <input type="radio" class="form-check-input" id="normal" name="chart_option"
+                                value="normal" checked>
+                            <label class="form-check-label" for="normal">Single Sensor Type(Data Analysis)</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 form-group">
+                        <div class="form-check">
+                            <input type="radio" class="form-check-input" id="comparative" name="chart_option"
+                                value="comparative">
+                            <label class="form-check-label" for="comparative">Multiple Sensor Type(Data
+                                Analysis)</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 form-group">
+                        <div class="form-check">
+                            <input type="radio" class="form-check-input" id="mapping" name="chart_option"
+                                value="mapping">
+                            <label class="form-check-label" for="mapping">
+                                Section Sensor Mapping
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="normal">
+                    <form action="#" id="normal_chart_details_form"
+                        class="p-4 p-md-4 border rounded-3 bg-body-tertiary shadow">
+                        <div class="row mb-3 d-flex">
+                            <div class="col-lg-3 form-group">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" id="raw" name="chart_type"
+                                        value="raw" checked>
+                                    <label class="form-check-label" for="raw">Raw</label>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 form-group">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" id="max" name="chart_type"
+                                        value="max">
+                                    <label class="form-check-label" for="max">Max</label>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 form-group">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" id="min" name="chart_type"
+                                        value="min">
+                                    <label class="form-check-label" for="min">Min</label>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 form-group">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" id="avg" name="chart_type"
+                                        value="avg">
+                                    <label class="form-check-label" for="avg">Average</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="from-group">
+                                    <label>Select Sensor Type</label>
+                                    <select name="sensor_type" id="sensor_type" class="form-control selectpicker"
+                                        required>
+                                        <option value="">Select One</option>
+                                        {% for i in sensor_types.keys %}
+                                        <option value="{{i}}">
+                                            {{sensor_types.values|get_list2_value:forloop.counter0}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="from-group">
+                                    <label>Select Sensors (Multiple)</label>
+                                    <select name="method" id="method" class="form-control selectpicker" required
+                                        multiple>
+                                        <option value="">Select Sensor Type</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div>
+                                    <label for="from_time">From Time</label>
+                                    <input name="from_time" type="datetime-local" id="normal_from_time"
+                                        class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div>
+                                    <label for="to_time">To Time</label>
+                                    <input name="to_time" type="datetime-local" id="normal_to_time"
+                                        class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="w-100 btn btn-lg btn-primary normal_submit_btn" type="submit">Submit</button>
+                        <div class="normal_reset_btn mt-2" style="display: none;">
+                            <a href="{% url 'index' %}" class="w-100 btn btn-lg btn-warning">Reset</a>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="comparative" style="display: none;">
+                    <form action="#" id="comparative_chart_details_form" enctype="multipart/form-data"
+                        class="p-4 p-md-4 border rounded-3 bg-body-tertiary shadow">
+                        {% csrf_token %}
+                        <div class="row mb-3 d-flex">
+                            <div class="col-lg-3 form-group">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" id="raw" name="chart_type"
+                                        value="raw" checked>
+                                    <label class="form-check-label" for="raw">Raw</label>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 form-group">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" id="max" name="chart_type"
+                                        value="max">
+                                    <label class="form-check-label" for="max">Max</label>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 form-group">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" id="min" name="chart_type"
+                                        value="min">
+                                    <label class="form-check-label" for="min">Min</label>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 form-group">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" id="avg" name="chart_type"
+                                        value="avg">
+                                    <label class="form-check-label" for="avg">Average</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 parent_form">
+                                <div class="form-group">
+                                    <label>Select Sensor Type</label>
+                                    <select name="sensor_type" id="first_sensor_type"
+                                        class="sensor_type form-control selectpicker" required>
+                                        <option value="">Select One</option>
+                                        {% for i in sensor_types.keys %}
+                                        <option value="{{i}}">
+                                            {{sensor_types.values|get_list2_value:forloop.counter0}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Select Sensor</label>
+                                    <select name="method" class="method form-control selectpicker" required
+                                        multiple>
+                                        <option value="">Select Sensor Type</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6 parent_form">
+                                <div class="form-group">
+                                    <label>Select Sensor Type</label>
+                                    <select name="sensor_type" id="second_sensor_type"
+                                        class="sensor_type form-control selectpicker" required>
+                                        <option value="">Select One</option>
+                                        {% for i in sensor_types.keys %}
+                                        <option value="{{i}}">
+                                            {{sensor_types.values|get_list2_value:forloop.counter0}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label>Select Sensor</label>
+                                    <select name="method" class="method form-control selectpicker" required
+                                        multiple>
+                                        <option value="">Select Sensor Type</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div>
+                                    <label for="from_time">From Time</label>
+                                    <input name="from_time" type="datetime-local" id="comparative_from_time"
+                                        class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div>
+                                    <label for="to_time">To Time</label>
+                                    <input name="to_time" type="datetime-local" id="comparative_to_time"
+                                        class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <button class="w-100 btn btn-lg btn-primary comparative_submit_btn"
+                            type="submit">Submit</button>
+                        <div class="comparative_reset_btn mt-2" style="display: none;">
+                            <a href="{% url 'index' %}" class="w-100 btn btn-lg btn-warning">Reset</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="mapping" style="display: none;">
+                    <form action="#" id="mapping_chart_details_form" enctype="multipart/form-data"
+                        class="p-4 p-md-4 border rounded-3 bg-body-tertiary shadow">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="from-group">
+                                    <label>Select Section</label>
+                                    <select name="section_id" id="section_id" class="form-control selectpicker"
+                                        required>
+                                        <option value="">Select One</option>
+                                        {% for section in sections %}
+                                        <option value="{{section.id}}">
+                                            {{section.name}}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="text" name="mapping" class="form-control" value="1" hidden>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <button class="w-100 btn btn-lg btn-primary mapping_submit_btn" type="submit">Submit</button>
+                        <div class="mapping_reset_btn mt-2" style="display: none;">
+                            <a href="{% url 'index' %}" class="w-100 btn btn-lg btn-warning">Reset</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="container col-lg-12 col-md-12 col-sm-12 px-2 py-2">
+            <div class="mt-4">
+                <div class="normalChart" style="display: none;">
+                    <div class="col-md-12">
+                        <figure class="highcharts-figure">
+                            <div id="chartContainer"></div>
+                        </figure>
+                    </div>
+                </div>
+                <div class="comparativeChart mt-2" style="display: none;">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#individual">Individual</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#combine">Combine</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div id="individual" class="container tab-pane active"><br>
+                            <div class="col-md-12">
+                                <figure class="highcharts-figure">
+                                    <div id="chartFirstContainer"></div>
+                                </figure>
+                            </div>
+                            <div class="col-md-12">
+                                <figure class="highcharts-figure">
+                                    <div id="chartSecondContainer"></div>
+                                </figure>
+                            </div>
+                        </div>
+                        <div id="combine" class="container tab-pane fade"><br>
+                            <div class="col-md-12">
+                                <figure class="highcharts-figure">
+                                    <div id="combineChartContainer"></div>
+                                </figure>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mappingChart" style="display: none;">
+                    <div class="col-md-12">
+                        <figure class="highcharts-figure">
+                            <div id="chartStrainContainer"></div>
+                        </figure>
+                    </div>
+                    <div class="col-md-12">
+                        <figure class="highcharts-figure">
+                            <div id="chartTiltContainer"></div>
+                        </figure>
+                    </div>
+                    <div class="col-md-12">
+                        <figure class="highcharts-figure">
+                            <div id="chartSettlement(P)Container"></div>
+                        </figure>
+                    </div>
+                    <div class="col-md-12">
+                        <figure class="highcharts-figure">
+                            <div id="chartSettlement(F)Container"></div>
+                        </figure>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block js %}
+<script>
+
+    function renderNormalLineChart(result, chart_type) {
+        // Create the chart
+        Highcharts.chart('chartContainer', {
+
+            chart: {
+                zoomType: 'x',
+                // height: 500
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                text: $("#sensor_type option:selected").text()+' Data Analysis'
+            },
+
+            accessibility: {
+                screenReaderSection: {
+                    beforeChartFormat: '<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartSubtitle}</div><div>{chartLongdesc}</div><div>{xAxisDescription}</div><div>{yAxisDescription}</div>'
+                }
+            },
+
+            tooltip: {
+                valueDecimals: 5,
+                xDateFormat: chart_type != 'raw' ? '%A, %b %e' : ''
+            },
+
+            xAxis: {
+                type: 'datetime'
+            },
+
+            series: result.series
+
+        });
+    }
+
+    function renderMappingChart(result) {
+        Highcharts.chart('chartStrainContainer', {
+
+            chart: {
+                zoomType: 'x',
+                // height: 500
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                text: 'Strain Gauge Data Analysis'
+            },
+
+            accessibility: {
+                screenReaderSection: {
+                    beforeChartFormat: '<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartSubtitle}</div><div>{chartLongdesc}</div><div>{xAxisDescription}</div><div>{yAxisDescription}</div>'
+                }
+            },
+
+            tooltip: {
+                valueDecimals: 5,
+                xDateFormat: ''
+            },
+
+            xAxis: {
+                type: 'datetime'
+            },
+
+            series: result.series["Strain"]
+
+        });
+
+        Highcharts.chart('chartTiltContainer', {
+
+            chart: {
+                zoomType: 'x',
+                // height: 500
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                text: 'Tilt Data Analysis'
+            },
+
+            accessibility: {
+                screenReaderSection: {
+                    beforeChartFormat: '<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartSubtitle}</div><div>{chartLongdesc}</div><div>{xAxisDescription}</div><div>{yAxisDescription}</div>'
+                }
+            },
+
+            tooltip: {
+                valueDecimals: 5,
+                xDateFormat: ''
+            },
+
+            xAxis: {
+                type: 'datetime'
+            },
+
+            series: result.series["Tilt"]
+
+        });
+
+        Highcharts.chart('chartSettlement(P)Container', {
+
+            chart: {
+                zoomType: 'x',
+                // height: 500
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                text: 'Settlement(P) Data Analysis'
+            },
+
+            accessibility: {
+                screenReaderSection: {
+                    beforeChartFormat: '<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartSubtitle}</div><div>{chartLongdesc}</div><div>{xAxisDescription}</div><div>{yAxisDescription}</div>'
+                }
+            },
+
+            tooltip: {
+                valueDecimals: 5,
+                xDateFormat: ''
+            },
+
+            xAxis: {
+                type: 'datetime'
+            },
+
+            series: result.series["Settlement(P)"]
+
+            });
+
+        Highcharts.chart('chartSettlement(F)Container', {
+
+            chart: {
+                zoomType: 'x',
+                // height: 500
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                text: 'Settlement(F) Data Analysis'
+            },
+
+            accessibility: {
+                screenReaderSection: {
+                    beforeChartFormat: '<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartSubtitle}</div><div>{chartLongdesc}</div><div>{xAxisDescription}</div><div>{yAxisDescription}</div>'
+                }
+            },
+
+            tooltip: {
+                valueDecimals: 5,
+                xDateFormat: ''
+            },
+
+            xAxis: {
+                type: 'datetime'
+            },
+
+            series: result.series["Settlement(F)"]
+
+            });
+
+    }
+
+    function renderCombineLineChart(result, chart_type) {
+        // Create the chart
+        Highcharts.chart('combineChartContainer', {
+
+            chart: {
+                zoomType: 'x',
+                // height: 500
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                text: 'Combined Comparative Data Analysis'
+            },
+
+            accessibility: {
+                screenReaderSection: {
+                    beforeChartFormat: '<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartSubtitle}</div><div>{chartLongdesc}</div><div>{xAxisDescription}</div><div>{yAxisDescription}</div>'
+                }
+            },
+
+            tooltip: {
+                valueDecimals: 5,
+                xDateFormat: chart_type != 'raw' ? '%A, %b %e' : ''
+            },
+
+            xAxis: {
+                type: 'datetime'
+            },
+
+            series: result
+
+        });
+    }
+
+    function renderCombineFirstLineChart(result, chart_type) {
+        // Create the chart
+        Highcharts.chart('chartFirstContainer', {
+
+            chart: {
+                zoomType: 'x',
+                // height: 500
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                text: result.header
+            },
+
+            accessibility: {
+                screenReaderSection: {
+                    beforeChartFormat: '<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartSubtitle}</div><div>{chartLongdesc}</div><div>{xAxisDescription}</div><div>{yAxisDescription}</div>'
+                }
+            },
+
+            tooltip: {
+                valueDecimals: 5,
+                xDateFormat: chart_type != 'raw' ? '%A, %b %e' : ''
+            },
+
+            xAxis: {
+                type: 'datetime'
+            },
+
+            series: result.data
+
+        });
+    }
+
+    function renderCombineSecondLineChart(result, chart_type) {
+        // Create the chart
+        Highcharts.chart('chartSecondContainer', {
+
+            chart: {
+                zoomType: 'x',
+                // height: 500
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                text: result.header
+            },
+
+            accessibility: {
+                screenReaderSection: {
+                    beforeChartFormat: '<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartSubtitle}</div><div>{chartLongdesc}</div><div>{xAxisDescription}</div><div>{yAxisDescription}</div>'
+                }
+            },
+
+            tooltip: {
+                valueDecimals: 5,
+                xDateFormat: chart_type != 'raw' ? '%A, %b %e' : ''
+            },
+
+            xAxis: {
+                type: 'datetime'
+            },
+
+            series: result.data
+
+        });
+    }
+
+
+    $('.selectpicker').select2({
+        placeholder: ''
+    });
+
+    $(document).on('change', '#sensor_type', function () {
+        $('.normalChart').css('display', 'none');
+        $('.comparativeChart').css('display', 'none');
+        $('.mappingChart').css('display', 'none');
+        let sensor_type = $(this).val();
+        $.ajax({
+            url: "{% url 'getSensorsByTypes' %}",
+            type: 'post',
+            data: ({ sensor_type: sensor_type }),
+            success: function (response) {
+                if (response.code == 200) {
+
+                    var sensors_text = `<option value="">Select Sensors (Multiple)</option>`;
+                    for (const key in response.columns) {
+                        sensors_text += `<option value="${key}">${response.columns[key]}</option>`;
+                    }
+                    $("#method").html(sensors_text);
+
+                    // Convert the data to a JavaScript Date object
+                    // const minTime = new Date(response.min_time).toISOString().slice(0, 16);
+                    // const maxTime = new Date(response.max_time).toISOString().slice(0, 16);
+                    var minTime = response.min_time;
+                    var maxTime = response.max_time;
+
+                    // Set the min and max attributes of the input element
+                    $('#normal_from_time').attr('min', minTime);
+                    $('#normal_from_time').attr('max', maxTime);
+
+                    // Set the min and max attributes of the input element
+                    $('#normal_to_time').attr('min', minTime);
+                    $('#normal_to_time').attr('max', maxTime);
+                } else {
+                    alert(response.message);
+                }
+            },
+        });
+    })
+
+    $(document).on('change', '.sensor_type', function () {
+        $('.normalChart').css('display', 'none');
+        $('.comparativeChart').css('display', 'none');
+        $('.mappingChart').css('display', 'none');
+        let elem = $(this);
+        let sensor_type = elem.val();
+        $.ajax({
+            url: "{% url 'getSensorsByTypes' %}",
+            type: 'post',
+            data: ({ sensor_type: sensor_type }),
+            success: function (response) {
+                if (response.code == 200) {
+                    var sensors_text = `<option value="">Select Sensor</option>`;
+                    for (const key in response.columns) {
+                        sensors_text += `<option value="${sensor_type + "~~" + key}">${response.columns[key]}</option>`;
+                    }
+                    elem.parents('.parent_form').find('.method').html(sensors_text);
+                } else {
+                    alert(response.message);
+                }
+            },
+        });
+
+        let sensor_types = [];
+        $('.sensor_type').each(function () {
+            sensor_types.push($(this).val());
+        })
+
+        $.ajax({
+            url: "{% url 'getCompareTimeDetails' %}",
+            type: 'post',
+            data: ({ sensor_types: sensor_types }),
+            success: function (response) {
+                if (response.code == 200) {
+                    // Convert the data to a JavaScript Date object
+                    // const minTime = new Date(response.min_time).toISOString().slice(0, 16);
+                    // const maxTime = new Date(response.max_time).toISOString().slice(0, 16);
+                    var minTime = response.min_time;
+                    var maxTime = response.max_time;
+
+                    // Set the min and max attributes of the input element
+                    $('#comparative_from_time').attr('min', minTime);
+                    $('#comparative_from_time').attr('max', maxTime);
+
+                    // Set the min and max attributes of the input element
+                    $('#comparative_to_time').attr('min', minTime);
+                    $('#comparative_to_time').attr('max', maxTime);
+                } else {
+                    alert(response.message);
+                }
+            },
+        });
+    })
+
+    $(document).on('change', "#first_sensor_type", function () {
+        $('.normalChart').css('display', 'none');
+        $('.comparativeChart').css('display', 'none');
+        $('.mappingChart').css('display', 'none');
+        chosen_senor = $(this).val();
+        updated_sensor_types_text = `<option value="">Select One</option>`;
+        {% for i in sensor_types.keys %}
+        if (chosen_senor != '{{i}}') {
+            updated_sensor_types_text += `<option value="{{i}}">{{sensor_types.values|get_list2_value:forloop.counter0}}</option>`;
+        }
+        {% endfor %}
+
+        $("#second_sensor_type").html(updated_sensor_types_text);
+    })
+
+    $(document).on('click', 'input[name=chart_option]:checked', function () {
+        chart_option = $(this).val();
+        if (chart_option == 'normal') {
+            $('.normal').css('display', 'block');
+            $('.comparative').css('display', 'none');
+            $('.mapping').css('display', 'none');
+            $('.normalChart').css('display', 'none');
+            $('.comparativeChart').css('display', 'none');
+            $('.mappingChart').css('display', 'none');
+        } else if (chart_option == 'comparative') {
+            $('.comparative').css('display', 'block');
+            $('.normal').css('display', 'none');
+            $('.mapping').css('display', 'none');
+            $('.normalChart').css('display', 'none');
+            $('.comparativeChart').css('display', 'none');
+            $('.mappingChart').css('display', 'none');
+        }
+        else if (chart_option == 'mapping') {
+            $('.mapping').css('display', 'block');
+            $('.normal').css('display', 'none');
+            $('.comparative').css('display', 'none');
+            $('.normalChart').css('display', 'none');
+            $('.comparativeChart').css('display', 'none');
+            $('.mappingChart').css('display', 'none');
+        }
+        $('.selectpicker').select2({
+            placeholder: ''
+        });
+    })
+
+    $(document).on('submit', '#normal_chart_details_form', async function (e) {
+        e.preventDefault();
+        $('.normal_submit_btn').text('Submitting...');
+        $('.normal_submit_btn').prop('disabled', true);
+        // if (parseInt($('#from_hour').val()) > parseInt($('#to_hour').val())) {
+        //     alert("From hour should not exceeds To hour");
+        // } else {
+        var formData = new FormData(this);
+        await $.ajax({
+            type: "POST",
+            evalScripts: true,
+            contentType: false,
+            processData: false,
+            url: "{% url 'getChartData' %}",
+            data: formData,
+            success: function (response) {
+                $('.normal_submit_btn').text('Submit');
+                $('.normal_submit_btn').prop('disabled', false);
+                if (response.code == 200) {
+                    $('.normal_reset_btn').css('display', 'block');
+                    result = response.result;
+                    $('.normalChart').css('display', 'block');
+                    $('.comparativeChart').css('display', 'none');
+                    renderNormalLineChart(result, formData.get("chart_type"));
+                } else {
+                    alert(response.message)
+                }
+            }
+        });
+        // }
+    });
+  
+    $(document).on('submit', '#comparative_chart_details_form', async function (e) {
+        e.preventDefault();
+        $('.comparative_submit_btn').text('Submitting...');
+        $('.comparative_submit_btn').prop('disabled', true);
+        var formData = new FormData(this);
+        await $.ajax({
+            type: "POST",
+            evalScripts: true,
+            contentType: false,
+            processData: false,
+            url: "{% url 'getCompareChartData' %}",
+            data: formData,
+            success: function (response) {
+                $('.comparative_submit_btn').text('Submit');
+                $('.comparative_submit_btn').prop('disabled', false);
+                if (response.code == 200) {
+                    $('.comparative_reset_btn').css('display', 'block')
+                    result = response.result;
+                    $('.normalChart').css('display', 'none');
+                    $('.comparativeChart').css('display', 'block');
+                    renderCombineLineChart(result.combine_data, formData.get("chart_type"));
+                    renderCombineFirstLineChart(result.all_data[Object.keys(result.all_data)[0]], formData.get("chart_type"));
+                    renderCombineSecondLineChart(result.all_data[Object.keys(result.all_data)[1]], formData.get("chart_type"));
+                } else {
+                    alert(response.message)
+                }
+            }
+        });
+    });
+
+    $(document).on('submit', '#mapping_chart_details_form', async function (e) {
+        e.preventDefault();
+        $('.mapping_submit_btn').text('Submitting...');
+        $('.mapping_submit_btn').prop('disabled', true);
+        // if (parseInt($('#from_hour').val()) > parseInt($('#to_hour').val())) {
+        //     alert("From hour should not exceeds To hour");
+        // } else {
+        var formData = new FormData(this);
+        await $.ajax({
+            type: "POST",
+            evalScripts: true,
+            contentType: false,
+            processData: false, 
+            url: "{% url 'getChartData' %}?keyword=" + true,
+            data: formData,
+            success: function (response) {
+                $('.mapping_submit_btn').text('Submit');
+                $('.mapping_submit_btn').prop('disabled', false);
+                if (response.code == 200) {
+                    $('.mapping_reset_btn').css('display', 'block');
+                    result = response.result;
+                    $('.mappingChart').css('display', 'block');
+                    $('.normalChart').css('display', 'none');
+                    $('.comparativeChart').css('display', 'none');
+                    renderMappingChart(result);
+                } else {
+                    alert(response.message)
+                }
+            }
+        });
+        // }
+    });
+
+
+</script>
+
+{% endblock %}
